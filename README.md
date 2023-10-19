@@ -38,7 +38,7 @@ touch "/usr/local/hestia/data/hcpp/installed/wp-global"
 
 &nbsp;
 ## Using WP Global
-Simply locate the wp-global folder in your userfolder. In [CodeGarden PWS](https://code.gdn/pws), simply use the `Files` option to open your website files; the wp-global folder is a top-level folder adjacent to all your website domains (i.e. example.dev.cc, etc). Place *compatible plugins in this folder to have them automatically load in all your adjacent WordPress website domains. To disable a plugin without deletion; simply rename the given plugin folder with a `.disabled` extension. For example, the [AirPlane Mode](https://github.com/norcross/airplane-mode) plugin that is pre-installed with HCPP-WP-Global is disabled by default (named airplane-mode.disabled). 
+Simply locate the wp-global folder in your account's user folder. In [CodeGarden PWS](https://code.gdn/pws), simply use the `Files` option to open your website files; the wp-global folder is a top-level folder adjacent to all your website domains (i.e. example.dev.cc, etc). Place *compatible plugins in this folder to have them automatically load in all your adjacent WordPress website domains. To disable a plugin without deletion; simply rename the given plugin folder with a `.disabled` extension. For example, the [AirPlane Mode](https://github.com/norcross/airplane-mode) plugin that is pre-installed with HCPP-WP-Global is disabled by default (named airplane-mode.disabled). 
 
 **Note:** *Compatibility; not all WordPress plugins are compatible with the wp-global folder. Plugin auto-updates are not supported. 
 
