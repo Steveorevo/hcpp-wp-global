@@ -1,2 +1,5 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
+
+# Notify installation has finished
+/usr/local/hestia/bin/v-add-user-notification admin "WP Global" "<span style=\"color:#4DA6FF;\"><i class=\"fas fa-wordpress\"></i></span> WP Global plugin has finished installing."
