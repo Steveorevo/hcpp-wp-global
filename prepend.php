@@ -23,6 +23,8 @@
                         $plugin_folders[] = $wp_global_folder . '/' . $file;
                     }
                 }
+            }else{
+                return;
             }
 
             // Check if an existing JSON file exists in the user's home folder
@@ -73,10 +75,8 @@
             add_filter( 'plugins_url', array( &$this, 'wpgr_plugins_url' ), 0 );
         
             // Load the plugin_files listed in the JSON file
-            foreach ( $plugin_files as $plugin_file ) {
-                foreach ( $plugin_file as $folder => $file ) {
-                    include_once( $file );
-                }
+            foreach ( $plugin_files as $folder => $file ) {
+                include_once( $file );
             }
         }
 
