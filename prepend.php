@@ -29,7 +29,7 @@
             $find_plugin_files = true;
             $plugin_files = [];
             $wp_global_plugins_json = $_SERVER['HOME'] . '/tmp/wp-global-plugins.json';
-            if ( file_exists( $_SERVER['HOME'] . '/.wp-global-plugins.json' ) ) {
+            if ( file_exists( $wp_global_plugins_json ) ) {
                 $json = file_get_contents( $wp_global_plugins_json );
                 $plugin_files = json_decode( $json, true );
 
