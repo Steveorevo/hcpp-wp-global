@@ -98,9 +98,101 @@
             return $url;
         }
 
+        // Serve/process files from the wp-global folder
         public function wpgr_init() {
-            echo WP_PLUGIN_URL;
-            exit();
+            $wp_global_url = WP_PLUGIN_URL . '/wp-global/';
+            $request_url = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['SERVER_NAME'] . $_SERVER['REQUEST_URI'];
+            if ( substr( $request_url, 0, strlen( $wp_global_url ) ) !== $wp_global_url ) return;
+
+            // Check if the request path is within the wp-global folder
+            $wp_global_path =  realpath( $_SERVER['HOME'] . '/web/wp-global' ) . '/';               
+            $request_path = str_replace( $wp_global_url, $wp_global_path, $request_url );
+            $request_path = realpath( $request_path );
+            if ( $request_path !== false && strpos( $request_path, $wp_global_path ) === 0 ) {
+                
+                // Serve the index.html, index.htm, or index.php if its just a directory
+                if ( is_dir( $request_path ) ) {
+                    if ( file_exists( $request_path . '/index.html') ) {
+                        $request_path = $request_path . '/index.html';
+                    }else{
+                        if ( file_exists( $request_path . '/index.htm') ) {
+                            $request_path = $request_path . '/index.htm';
+                        }else{
+                            $request_path = $request_path . '/index.php';
+                        }
+                    }
+                    if ( file_exists( $request_path ) ) {
+
+                        // Check if the directory contains an index.php file
+                        include( $request_path );
+                        exit();
+                    } else {
+
+                        // Return a 403 Forbidden error
+                        header( 'HTTP/1.0 403 Forbidden' );
+                        exit();
+                    }
+
+                // Serve the requested file content
+                } else if ( is_file( $request_path ) ) {
+
+                    // Process the php file
+                    if ( substr( $request_path, -4 ) == '.php' ) {
+                        include( $request_path );
+                        exit();
+                    } else {
+                        
+                        // Get the content mime type by extension using Nginx' mime.types
+                        $mime_types = trim( shell_exec( 'cat /etc/nginx/mime.types' ) );
+                        $mime_types = preg_replace( '/^.*\{(.*)\}.*$/s', '$1', $mime_types );
+                        $mime_types = str_replace( "\n", "", $mime_types );
+                        $mime_types = explode( ";", $mime_types );
+                        $mime_types = array_filter( $mime_types, function( $line ) {
+                            $line = trim( $line );
+                            if ( substr( $line, 0, 1 ) == '#' ) return false;
+                            if ( $line == '' ) return false;
+                            return true;
+                        } );
+                        
+                        // Create an extension to mime type array
+                        $mime_type_by_extension = [];
+                        foreach( $mime_types as $line ) {
+                            $line = trim( $line );
+                            $line = explode( ' ', $line );
+                            $mime_type = array_shift( $line );
+                            foreach( $line as $extension ) {
+                                $extension = trim( $extension );
+                                if ( $extension == '' ) continue;
+                                $mime_type_by_extension[$extension] = $mime_type;
+                            }
+                        }
+                        $ext = pathinfo($request_path, PATHINFO_EXTENSION);
+                        if ( isset( $mime_type_by_extension[$ext] ) ) {
+
+                            // Serve the known mime type
+                            header('Content-Type: ' . $mime_type_by_extension[$ext] );
+                            readfile( $request_path );
+                        }else{
+
+                            // Return a 404 Not Found error
+                            header( 'HTTP/1.0 415 Unsupported Media Type' );
+                            exit();
+                        }
+                        echo $ext . '<br>';
+                        echo '<pre>' . json_encode( $mime_type_by_extension, JSON_PRETTY_PRINT ) . '</pre>';
+                        exit();
+                    }
+                } else {
+                    // Return a 404 Not Found error
+                    header( 'HTTP/1.0 404 Not Found' );
+                    exit();
+                }
+            }else{
+
+                // Return a 403 Forbidden error
+                header( 'HTTP/1.0 403 Forbidden' );
+                exit();
+            }
         }
     }
     global $wp_global_runtime;
