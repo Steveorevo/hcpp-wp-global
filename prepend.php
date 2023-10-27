@@ -15,7 +15,7 @@
 
             // Gather a list of folders that do not have .disabled suffix in the wp-global folder
             $plugin_folders = array();
-            if ( is_dir( $wp_global_folder ) ) {
+            if ( is_dir( $wp_global_folder ) == true ) {
                 $files = scandir( $wp_global_folder );
                 foreach ( $files as $file ) {
                     if ( is_dir( $wp_global_folder . '/' . $file ) && substr( $file, -9 ) != '.disabled' ) {
