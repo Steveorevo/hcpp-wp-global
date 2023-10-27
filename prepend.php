@@ -58,7 +58,7 @@
     
                             // Check if the header contains the bare minimum of 'Plugin Name:' and 'Description:'
                             if ( preg_match( '/Plugin Name:/', $header ) && preg_match( '/Description:/', $header ) ) {
-                                $plugin_files[] = [$plugin_folder => $plugin_folder . '/' . $file];
+                                $plugin_files[$plugin_folder] = $plugin_folder . '/' . $file;
                             }
                         }
                     }
