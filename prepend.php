@@ -18,6 +18,7 @@
             if ( is_dir( $wp_global_folder ) == true ) {
                 $files = scandir( $wp_global_folder );
                 foreach ( $files as $file ) {
+                    if ( $file == '.' || $file == '..' ) continue;
                     if ( is_dir( $wp_global_folder . '/' . $file ) && substr( $file, -9 ) != '.disabled' ) {
                         $plugin_folders[] = $wp_global_folder . '/' . $file;
                     }
