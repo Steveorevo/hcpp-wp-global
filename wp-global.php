@@ -17,6 +17,7 @@
             // Brute force hook muplugins_loaded event to load any wp-global plugins
             global $wp_filter;
             $wp_filter['muplugins_loaded'][0]['wpgr_load_plugins'] = array( 'function' =>  array(&$this, 'wpgr_load_plugins'), 'accepted_args' => 3 );
+            $wp_filter['init'][1]['wpgr_init'] = array( 'function' => array(&$this, 'wpgr_init') );
         }
 
         // Load any plugins from the user's web/wp-global folder
@@ -90,12 +91,16 @@
             }
         }
 
-        // TODO: Correct the plugins_url to point to the wp-global folder
+        // Correct the plugins_url to point to the wp-global folder
         public function wpgr_plugins_url( $url ) {
-            file_put_contents( '/tmp/wpgr_plugins_url.txt', $url, FILE_APPEND );
-            // $wp_global_folder = $_SERVER['HOME'] . '/web/wp-global';
-            // $url = str_replace( WP_PLUGIN_URL, $wp_global_folder, $url );
+            $fix_wp_global = WP_PLUGIN_URL . $_SERVER['HOME'] . '/web/wp-global/';
+            $url = str_replace( $fix_wp_global, WP_PLUGIN_URL . '/wp-global/', $url );
             return $url;
+        }
+
+        public function wpgr_init() {
+            echo WP_PLUGIN_URL;
+            exit();
         }
     }
     global $wp_global_runtime;
