@@ -1,7 +1,7 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
 
-php -r <<'EOF'
+php -a <<'EOF'
 require_once( '/usr/local/hestia/web/pluginable.php' );
 global $hcpp;
 
@@ -21,6 +21,7 @@ foreach( $files as $file ) {
         ":/usr/local/hestia/plugins:/home/%user%/web/wp-global:"
     );
 }
+exit
 EOF
 
 # Notify installation has finished

@@ -27,15 +27,16 @@
             // Check if an existing JSON file exists in the user's home folder
             $find_plugin_files = true;
             $plugin_files = [];
+            $wp_global_plugins_json = $_SERVER['HOME'] . '/tmp/wp-global-plugins.json';
             if ( file_exists( $_SERVER['HOME'] . '/.wp-global-plugins.json' ) ) {
-                $json = file_get_contents( $_SERVER['HOME'] . '/.wp-global-plugins.json' );
+                $json = file_get_contents( $wp_global_plugins_json );
                 $plugin_files = json_decode( $json, true );
 
                 // Check if list of plugin folders matches the JSON file
                 $plugin_folders_list = implode( ',', $plugin_folders );
                 $plugin_files_list = implode( ',', array_keys( $plugin_files ) );
                 if ( $plugin_folders_list == $plugin_files_list ) {
-                    $find_plugin_files = false; // Invalidate cache of .wp-global-plugins.json
+                    $find_plugin_files = false; // Invalidate cache of wp-global-plugins.json
                 }
             }
             
@@ -64,7 +65,7 @@
 
                 // Store the plugin_files as a JSON object in the user's home folder
                 $json = json_encode( $plugin_files );
-                file_put_contents( $_SERVER['HOME'] . '/.wp-global-plugins.json', $json );
+                file_put_contents( $wp_global_plugins_json, $json );
             }
             
             // Hook plugins_url to correct for wp-global folder
