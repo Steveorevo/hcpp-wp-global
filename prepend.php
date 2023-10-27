@@ -10,7 +10,7 @@
         }
 
         // Load any plugins from the user's web/wp-global folder
-        public function wpgr_load_plugins( $a, $b, $c ) {
+        public function wpgr_load_plugins() {
             $wp_global_folder = $_SERVER['HOME'] . '/web/wp-global';
 
             // Gather a list of folders that do not have .disabled suffix in the wp-global folder
