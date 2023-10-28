@@ -75,15 +75,11 @@
             $this->restart_php_fpm();
         }
 
-        // Restart all PHP-FPM services
+        // Restart all PHP-FPM services after delay in script (because restart kills this PHP itself)
         public function restart_php_fpm() {
-            $php_services = ['php5.6-fpm', 'php7.0-fpm', 'php7.1-fpm', 'php7.2-fpm',
-                'php7.3-fpm', 'php7.4-fpm', 'php7.4xdbg-fpm', 'php8.0-fpm', 'php8.0xdbg-fpm',
-                'php8.1-fpm', 'php8.1xdbg-fpm', 'php8.2-fpm', 'php8.2xdbg-fpm'];
-            $cmd = '';
-            foreach( $php_services as $service ) {
-                $cmd .= 'service ' . $service . ' restart; ';
-            }
+            global $hcpp;
+            $cmd = "nohup " . __DIR__ . "/restart-php-fpm.sh > /dev/null 2>&1 &";
+            $cmd = $hcpp->do_action( 'wp_global_restart_php_fpm', $cmd );
             shell_exec( $cmd );
         }
         
