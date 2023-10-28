@@ -24,18 +24,13 @@
         // Ensure we patch files and create/restore wp-global folders for users on enabled
         public function hcpp_plugin_enabled( $plugin ) {
             if ( $plugin != 'wp-global' ) return $plugin;
-
-            // Patch files
-            $this->patch_template_files();
-            $this->patch_live_conf_files();
-            $this->restart_php_fpm();
         
             // Create/restore wp-global folders
             $husers = $this->get_hestia_users();
             foreach( $husers as $user ) {
                 $tmp_wp_global = "/home/$user/tmp/wp-global";
                 $wp_global = "/home/$user/web/wp-global";
-                if ( is_dir( $tmp_wp_global && ! is_dir( $wp_global )) ) {
+                if ( is_dir( $tmp_wp_global ) && ! is_dir( $wp_global ) ) {
                     rename( $tmp_wp_global, $wp_global );
                 }else{
                     if ( ! is_dir( $wp_global ) ) {
@@ -45,6 +40,11 @@
                 chown( $wp_global, $user );
                 chgrp( $wp_global, $user );
             }
+
+            // Patch files
+            $this->patch_template_files();
+            $this->patch_live_conf_files();
+            $this->restart_php_fpm();
             return $plugin;
         }
 
