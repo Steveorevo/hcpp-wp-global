@@ -110,6 +110,8 @@
             // Check if the request path is within the wp-global folder
             $wp_global_path =  realpath( $_SERVER['HOME'] . '/web/wp-global' ) . '/';               
             $request_path = str_replace( $wp_global_url, $wp_global_path, $request_url );
+            $request_path = parse_url($request_path, PHP_URL_PATH);
+            $ext = pathinfo($request_path, PATHINFO_EXTENSION);
             $request_path = realpath( $request_path );
             if ( $request_path !== false && strpos( $request_path, $wp_global_path ) === 0 ) {
                 
@@ -140,7 +142,7 @@
                 } else if ( is_file( $request_path ) ) {
 
                     // Process the php file
-                    if ( substr( $request_path, -4 ) == '.php' ) {
+                    if ( $ext == 'php' ) {
                         include( $request_path );
                         exit();
                     } else {
@@ -156,7 +158,7 @@
                             if ( $line == '' ) return false;
                             return true;
                         } );
-                        
+
                         // Create an extension to mime type array
                         $mime_type_by_extension = [];
                         foreach( $mime_types as $line ) {
@@ -169,7 +171,6 @@
                                 $mime_type_by_extension[$extension] = $mime_type;
                             }
                         }
-                        $ext = pathinfo($request_path, PATHINFO_EXTENSION);
                         if ( isset( $mime_type_by_extension[$ext] ) ) {
 
                             // Serve the known mime type
