@@ -49,7 +49,7 @@
         }
 
         // Move wp-global folders to /home/user/tmp
-        public functon hcpp_plugin_disabled( $plugin ) {
+        public function hcpp_plugin_disabled( $plugin ) {
             $husers = $this->get_hestia_users();
             foreach( $husers as $user ) {
                 $tmp_wp_global = "/home/$user/tmp/wp-global";
