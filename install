@@ -1,28 +1,8 @@
 #!/bin/bash
 export DEBIAN_FRONTEND=noninteractive
 
-php -a <<'EOF'
-require_once( '/usr/local/hestia/web/pluginable.php' );
-global $hcpp;
-
-$hcpp->do_action( 'wp_global_pre_patch' );
-
-// Patch Hestia templates php-fpm templates ..templates/web/php-fpm/*.tpl
-$folderPath = "/usr/local/hestia/data/templates/web/php-fpm";
-$files = glob( "$folderPath/*.tpl" );
-foreach( $files as $file ) {
-    if ( strpos( $file, 'no-php.tpl' ) !== false ) {
-        continue;
-    }
-    // Patch php-fpm templates open_basedir to include /home/%user%/web/wp-global
-    $hcpp->patch_file( 
-        $file,
-        ":/usr/local/hestia/plugins:",
-        ":/usr/local/hestia/plugins:/home/%user%/web/wp-global:"
-    );
-}
-exit
-EOF
+# Patch live php-fpm pool.d config files and Hestia's templates
+/usr/local/hestia/bin/v-invoke-plugin wp_global_patch_all
 
 # Notify installation has finished
 /usr/local/hestia/bin/v-add-user-notification admin "WP Global" "<span style=\"color:#4DA6FF;\"><i class=\"fas fa-wordpress\"></i></span> WP Global plugin has finished installing."

@@ -17,14 +17,53 @@
             $hcpp->add_action( 'post_add_user', [ $this, 'post_add_user' ] );
             $hcpp->add_action( 'hcpp_invoke_plugin', [ $this, 'hcpp_invoke_plugin' ] );
             $hcpp->add_action( 'hcpp_plugin_uninstall', [ $this, 'hcpp_plugin_uninstall' ] );
+            $hcpp->add_action( 'hcpp_plugin_disabled', [ $this, 'hcpp_plugin_disabled' ] );
+            $hcpp->add_action( 'hcpp_plugin_enabled', [ $this, 'hcpp_plugin_enabled' ] );
+        }
+
+        // Ensure we patch files and create/restore wp-global folders for users on enabled
+        public function hcpp_plugin_enabled( $plugin ) {
+            if ( $plugin != 'wp-global' ) return $plugin;
+
+            // Patch files
+            $this->patch_template_files();
+            $this->patch_live_conf_files();
+            $this->restart_php_fpm();
+        
+            // Create/restore wp-global folders
+            $husers = $this->get_hestia_users();
+            foreach( $husers as $user ) {
+                $tmp_wp_global = "/home/$user/tmp/wp-global";
+                $wp_global = "/home/$user/web/wp-global";
+                if ( is_dir( $tmp_wp_global && ! is_dir( $wp_global )) ) {
+                    rename( $tmp_wp_global, $wp_global );
+                }else{
+                    if ( ! is_dir( $wp_global ) ) {
+                        mkdir( $wp_global, 0755, true );
+                    }    
+                }
+                chown( $wp_global, $user );
+                chgrp( $wp_global, $user );
+            }
+            return $plugin;
+        }
+
+        // Move wp-global folders to /home/user/tmp
+        public functon hcpp_plugin_disabled( $plugin ) {
+            $husers = $this->get_hestia_users();
+            foreach( $husers as $user ) {
+                $tmp_wp_global = "/home/$user/tmp/wp-global";
+                $wp_global = "/home/$user/web/wp-global";
+                if ( is_dir( $wp_global ) ) {
+                    rename( $wp_global, $tmp_wp_global );
+                }
+            }
         }
 
         // Respond to invoke-plugin wp_global_patch_all.
         public function hcpp_invoke_plugin( $args ) {
             if ( $args[0] === 'wp_global_patch_all' ) {
-                $this->patch_template_files();
-                $this->patch_live_conf_files();
-                $this->restart_php_fpm();
+                $this->hcpp_plugin_enabled( 'wp-global' );
             }
             return $args;
         }
@@ -93,24 +132,75 @@
             return $hconf_files;
         }
 
+        // Get list of template PHP-FPM pool.d conf files
+        public function get_template_conf_files() {
+
+            $folderPath = "/usr/local/hestia/data/templates/web/php-fpm";
+            $files = glob( "$folderPath/*.tpl" );
+            $hconf_files = [];
+            foreach( $files as $file ) {
+                if ( strpos( $file, 'no-php.tpl' ) !== false ) {
+                    continue;
+                }
+                $hconf_files[] = $file;
+            }
+            return $hconf_files;
+        }
+        
         // Patch live conf files to include wp-global in open_basedir
         public function patch_live_conf_files() {
-
+            $hconf_files = $this->get_live_conf_files();
+            global $hcpp;
+            foreach( $hconf_files as $file => $user ) {
+                $hcpp->patch_file(
+                    $file,
+                    ":/usr/local/hestia/plugins:",
+                    ":/usr/local/hestia/plugins:/home/$user/web/wp-global:",
+                    false // Don't create backup
+                );
+            }
         }
 
         // Unpatch live conf files to remove wp-global from open_basedir
         public function unpatch_live_conf_files() {
-
+            $hconf_files = $this->get_live_conf_files();
+            global $hcpp;
+            foreach( $hconf_files as $file => $user ) {
+                $hcpp->patch_file(
+                    $file,
+                    ":/usr/local/hestia/plugins:/home/$user/web/wp-global:",
+                    ":/usr/local/hestia/plugins:",
+                    false // Don't create backup
+                );
+            }
         }
 
         // Patch template files to include wp-global in open_basedir
         public function patch_template_files() {
-
+            $hconf_files = $this->get_template_conf_files();
+            global $hcpp;
+            foreach( $hconf_files as $file ) {
+                $hcpp->patch_file(
+                    $file,
+                    ":/usr/local/hestia/plugins:",
+                    ":/usr/local/hestia/plugins:/home/%user%/web/wp-global:",
+                    false // Don't create backup
+                );
+            }
         }
 
         // Unpatch template files to remove wp-global from open_basedir
         public function unpatch_template_files() {
-
+            $hconf_files = $this->get_template_conf_files();
+            global $hcpp;
+            foreach( $hconf_files as $file ) {
+                $hcpp->patch_file(
+                    $file,
+                    ":/usr/local/hestia/plugins:/home/%user%/web/wp-global:",
+                    ":/usr/local/hestia/plugins:",
+                    false // Don't create backup
+                );
+            }
         }
     }
     new WP_Global();
