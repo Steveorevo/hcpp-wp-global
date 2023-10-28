@@ -30,7 +30,9 @@
             foreach( $husers as $user ) {
                 $tmp_wp_global = "/home/$user/tmp/wp-global";
                 $wp_global = "/home/$user/web/wp-global";
-                if ( is_dir( $tmp_wp_global ) && ! is_dir( $wp_global ) ) {
+                if ( is_dir( $tmp_wp_global ) == true && is_dir( $wp_global ) == false ) {
+                    global $hcpp;
+                    $hcpp->log("restoring folder from $tmp_wp_global to $wp_global");
                     rename( $tmp_wp_global, $wp_global );
                 }else{
                     if ( ! is_dir( $wp_global ) ) {
