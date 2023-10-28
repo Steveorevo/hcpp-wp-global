@@ -148,7 +148,7 @@
                     } else {
                         
                         // Get the content mime type by extension using Nginx' mime.types
-                        $mime_types = trim( shell_exec( 'cat /etc/nginx/mime.types' ) );
+                        $mime_types = file_get_contents( __DIR__ . '/mime.types' );
                         $mime_types = preg_replace( '/^.*\{(.*)\}.*$/s', '$1', $mime_types );
                         $mime_types = str_replace( "\n", "", $mime_types );
                         $mime_types = explode( ";", $mime_types );
@@ -182,8 +182,6 @@
                             header( 'HTTP/1.0 415 Unsupported Media Type' );
                             exit();
                         }
-                        echo $ext . '<br>';
-                        echo '<pre>' . json_encode( $mime_type_by_extension, JSON_PRETTY_PRINT ) . '</pre>';
                         exit();
                     }
                 } else {
