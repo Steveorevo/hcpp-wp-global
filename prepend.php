@@ -10,7 +10,7 @@
  */
 
  // Don't run if plugin is disabled
- if ( is_dir( '/usr/local/hesita/plugins/wp-global.disabled' ) ) return;
+ if ( is_dir( '/usr/local/hestia/plugins/wp-global.disabled' ) ) return;
 
  if ( ! class_exists( 'WP_Global_Runtime') ) {
     class WP_Global_Runtime {
