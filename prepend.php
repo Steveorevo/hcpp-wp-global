@@ -205,7 +205,7 @@
             if ( is_dir( $dir ) ) {
                 $husers = array_diff( scandir( $dir ), array( '..', '.', 'admin' ) );
                 if ( empty( $husers ) ) {
-                    exit;
+                    exit();
                 }
             }
             $husers = array_values( $husers );
