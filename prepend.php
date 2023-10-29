@@ -180,7 +180,6 @@
 
                             // Return a 404 Not Found error
                             header( 'HTTP/1.0 415 Unsupported Media Type' );
-                            exit();
                         }
                         exit();
                     }
